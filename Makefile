@@ -99,7 +99,7 @@ cleanbootdump: FORCE
 dumpboot: bootimg_src/boot.img
 
 
-bootimg_src/boot.img: FORCE
+bootimg_src/boot.img:
 	rm -rf bootimg_src/boot.img
 	adb shell "su -c 'dd if=/dev/block/mmcblk0p19 of=/sdcard/boot.img'"
 	adb pull /sdcard/boot.img bootimg_src/boot.img
