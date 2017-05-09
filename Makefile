@@ -59,7 +59,7 @@ kernel: msm/arch/arm/boot/zImage-dtb
 msm/arch/arm/boot/zImage-dtb: msm/.config check-nexmon-setup-env
 	cd msm && make -j2
 
-boot.img: Makefile mkboot msm/arch/arm/boot/zImage-dtb
+boot.img: Makefile mkboot msm/arch/arm/boot/zImage-dtb bootimg_src/boot.img
 	rm -Rf bootimg_tmp
 	mkdir bootimg_tmp
 	cd bootimg_tmp && \
@@ -96,7 +96,10 @@ cleanbootdump: FORCE
 	   --cmdline 'console=ttyHSL0,115200,n8 androidboot.hardware=hammerhead user_debug=31 maxcpus=2 msm_watchdog_v2.enable=1' \
 	   --kernel bootimg_tmp/kernel --ramdisk bootimg_tmp/newramdisk.cpio.gz -o bootimg_src/boot.img
 
-dumpboot: FORCE
+dumpboot: bootimg_src/boot.img
+
+
+bootimg_src/boot.img: FORCE
 	rm -rf bootimg_src/boot.img
 	adb shell "su -c 'dd if=/dev/block/mmcblk0p19 of=/sdcard/boot.img'"
 	adb pull /sdcard/boot.img bootimg_src/boot.img
