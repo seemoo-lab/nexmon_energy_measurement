@@ -118,6 +118,8 @@ bootimg_src/boot.img:
 	   --ramdisk_offset 0x02900000 --second_offset 0x00f00000 --tags_offset 0x02700000 \
 	   --cmdline 'console=ttyHSL0,115200,n8 androidboot.hardware=hammerhead user_debug=31 maxcpus=2 msm_watchdog_v2.enable=1' \
 	   --kernel bootimg_tmp/kernel --ramdisk bootimg_tmp/newramdisk.cpio.gz -o bootimg_src/boot.img
+	rm -Rf bootimg_tmp
+	chmod 666 bootimg_src/boot.img
 
 boot: boot.img
 	adb reboot bootloader
