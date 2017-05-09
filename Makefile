@@ -103,6 +103,21 @@ bootimg_src/boot.img:
 	rm -rf bootimg_src/boot.img
 	adb shell "su -c 'dd if=/dev/block/mmcblk0p19 of=/sdcard/boot.img'"
 	adb pull /sdcard/boot.img bootimg_src/boot.img
+	rm -Rf bootimg_tmp
+	mkdir bootimg_tmp
+	cd bootimg_tmp && \
+	   $(MKBOOT)unmkbootimg -i ../bootimg_src/boot.img && \
+	   rm kernel && cp ../msm/arch/arm/boot/zImage-dtb kernel
+	mkdir bootimg_tmp/ramdisk && \
+	   cd bootimg_tmp/ramdisk && \
+	   gzip -dc ../ramdisk.cpio.gz | cpio -i \
+	   && chmod 755 .subackup \
+	   && rm -rf .subackup
+	$(MKBOOT)mkbootfs bootimg_tmp/ramdisk | gzip > bootimg_tmp/newramdisk.cpio.gz
+	$(MKBOOT)mkbootimg --base 0 --pagesize 2048 --kernel_offset 0x00008000 \
+	   --ramdisk_offset 0x02900000 --second_offset 0x00f00000 --tags_offset 0x02700000 \
+	   --cmdline 'console=ttyHSL0,115200,n8 androidboot.hardware=hammerhead user_debug=31 maxcpus=2 msm_watchdog_v2.enable=1' \
+	   --kernel bootimg_tmp/kernel --ramdisk bootimg_tmp/newramdisk.cpio.gz -o bootimg_src/boot.img
 
 boot: boot.img
 	adb reboot bootloader
